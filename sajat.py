@@ -1,5 +1,6 @@
 from math import gamma
 from pickle import TRUE
+#from numpy import _FlatIterSelf
 import pygame 
 import megegyprojekt 
 from megegyprojekt import Racs
@@ -41,6 +42,9 @@ nyuszi_szoveg= nyuszi_str.render("Nyuszi", False, (255,255,255))
 
 #veg_kepernyohoz kiiratando szöveg
 nyertel_str=pygame.font.SysFont("", 33)
+
+
+dontetlen_kep= pygame.image.load('dontetlen.png')
 
 nyertel= nyertel_str.render("Nyertél!", False, (255,255,255))
 ujrakep= pygame.image.load('ujra.png')
@@ -97,8 +101,8 @@ pygame.display.flip()
 running=True    
 
 kalitka=Racs(pygame, egyik_jatekos, masik_jatekos)
-
-    
+lepesek=0
+dontetlen=False
 while running:
         nyer=egyik_jatekos
         window.fill((0,0,0))
@@ -121,23 +125,35 @@ while running:
                     kalitka.mouse_click(x, y, letter)
                     if kalitka.switch_letter:
                         eppen_betu= letter
+                        lepesek+=1
+                        kalitka.draw(window)
+                        pygame.display.flip()
                         if kalitka.win(letter):
-                            
-                                kalitka.draw(window)
-                                pygame.display.flip()
-                                time.sleep(1)
-                                running=False
+                            if letter== "X":
+                                nyer=egyik_jatekos
+                            else:
+                                nyer= masik_jatekos
+                            time.sleep(1)
+                            running=False
+                            break
                             
 
-                            #running=False
+                
                             
                         else:
                             if letter== "X":
                                 letter= "O"
-                                nyer=masik_jatekos
+                             
                             else:
                                 letter= "X"
-                                nyer=egyik_jatekos
+                              
+
+                    
+
+                        if lepesek==9:
+                            time.sleep(1)
+                            dontetlen=True
+                            running=False
             
 
 vege=True                    
@@ -147,6 +163,34 @@ vege=True
 
     
 while vege:
+    if dontetlen:
+        window.fill((0,0,0))
+        window.blit(dontetlen_kep,(200, 150))
+        window.blit(ujrakep, (0,400))
+        window.blit(kilepeskep, (400,400))
+        pygame.display.flip()
+        for event in pygame.event.get():
+                    #kilépési módok(space vagy a piros x-re kattintasz az ablak jobb felső sarkában)
+                    if event.type== pygame.QUIT:
+                        quit()
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_SPACE:
+                            quit()
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if pygame.mouse.get_pressed()[0]:
+                            
+                            mouse_pos= pygame.mouse.get_pos()
+                            
+                            x= mouse_pos[0] //200
+                            y= mouse_pos[1] //200
+                            if x==0 and y ==2:
+                                print('Zárd be és indíts újra kérlek!')
+                                ujra()
+
+                            elif x == 2 and y==2:
+                                quit()
+    else:
+
         window.fill((0,0,0))
         window.blit(nyer, (200,150))  
         window.blit(nyertel, (200, 360)) 
